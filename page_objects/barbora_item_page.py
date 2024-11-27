@@ -8,7 +8,15 @@ class BarboraItemPage():
         self.driver = driver
 
     def get_title(self):
-        html_content = self.driver.find_element(By.XPATH,'/html/body/div[2]/div/div[3]/div/div[3]/div/dl[2]')
+        title = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1').text
+        product = title.split(',')
+        props = self.get_maker()
+        if len(product) >= 2:
+            good_title = re.sub(props , '' , product[0], flags=re.IGNORECASE)
+            return good_title
+
+    def get_maker(self):
+        html_content = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/dl[2]')
         soup = BeautifulSoup(html_content.get_attribute("outerHTML"), 'html.parser')
         target_fields = ['Prekės ženklas:']
         extracted_value = ""
@@ -21,17 +29,18 @@ class BarboraItemPage():
         return extracted_value
 
     def get_quantity(self):
-        element = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1')
-        product_title = element.text
+        product_title  = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1').text
         number_pattern =  r',\s*(\d+)(?=\s*g(?!.*\d))'
         number_match = re.search(number_pattern, product_title)
         product_number = number_match.group(1) if number_match else None
         return product_number
 
     def get_price(self):
-        eur = self.driver.find_element(By.XPATH, '//*[@id="fti-product-price--0"]/div[1]/div[1]/span[1]').text
-        cents = self.driver.find_element(By.XPATH, '//*[@id="fti-product-price--0"]/div[1]/div[1]/span[3]').text
-        price = int(eur) + (int(cents)/100)
+        price_element = self.driver.find_element(By.XPATH, '//*[@id="b-product-info--price-placeholder"]')
+        price_html = price_element.get_attribute('outerHTML')
+        soup = BeautifulSoup(price_html, 'html.parser')
+        price_meta = soup.find('meta', {'itemprop': 'price'})
+        price = price_meta['content'] if price_meta else None
         return price
 
     def get_unit(self):
@@ -42,10 +51,10 @@ class BarboraItemPage():
     def get_property(self):
         element = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1')
         product_title = element.text
-        properties = r'Ekologiški|ekologiški|skrudinti|neskrudinti|skrudintos|neskrudintos|lukštentos'
-        property_match = re.search(properties, product_title)
+        properties = r'Ekologiški|ekologiški|skrudinti|neskrudinti|skrudintos|neskrudintos|lukštenti|rudieji|rudi|plikyti|ilgagrūdžiai|basmati'
+        property_match = re.findall(properties, product_title)
         if property_match:
-            return property_match.group(0)
+            return ', '.join(property_match)
         else:
             return None
 

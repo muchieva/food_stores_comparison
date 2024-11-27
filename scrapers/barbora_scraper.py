@@ -37,7 +37,7 @@ class BarboraScraper():
             item.save()
 
     def accept_cookies(self):
-        self.driver.get("https://barbora.lt")
+        self.driver.get(self.url)
         self.driver.find_element(By.XPATH, '//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinDeclineAll"]').click()
 
     def age_consent(self):
