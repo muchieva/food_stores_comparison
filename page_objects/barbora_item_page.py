@@ -30,7 +30,7 @@ class BarboraItemPage():
 
     def get_quantity(self):
         product_title  = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1').text
-        number_pattern =  r',\s*(\d+)(?=\s*g(?!.*\d))'
+        number_pattern =  r',\s*(\d+)(?=\s*(g|kg|l|ml|vnt)(?!.*\d))'
         number_match = re.search(number_pattern, product_title)
         product_number = number_match.group(1) if number_match else None
         return product_number
@@ -45,14 +45,15 @@ class BarboraItemPage():
 
     def get_unit(self):
         full_text =  self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1').text
-        unit = str(full_text)[-1]
-        return unit
+        prop = r'\b(g|kg|l|ml|vnt)\b'
+        unit = re.search(prop, full_text)
+        return unit.group()
 
     def get_property(self):
         element = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[3]/div/div[3]/div/div[2]/div[1]/div/div[2]/h1')
         product_title = element.text
-        properties = r'Ekologiški|ekologiški|skrudinti|neskrudinti|skrudintos|neskrudintos|lukštenti|rudieji|rudi|plikyti|ilgagrūdžiai|basmati'
-        property_match = re.findall(properties, product_title)
+        properties = r'Ekologiški|skrudinti|neskrudinti|skrudintos|neskrudintos|lukštenti|rudieji|rudi|plikyti|ilgagrūdžiai|basmati|2,5 % rieb.|3,5 % rieb.|3,2 % rieb.|0,5 % rieb.|2,3 % rieb.|3,2% rieb.'
+        property_match = re.findall(properties, product_title, flags=re.IGNORECASE)
         if property_match:
             return ', '.join(property_match)
         else:

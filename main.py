@@ -17,7 +17,7 @@ def init_gathering():
 
 def execute_data_gathering():
     driver,wait = init_gathering()
-    barbora = BarboraScraper(driver, 'https://www.barbora.lt/bakaleja/kruopos')
+    barbora = BarboraScraper(driver, 'https://www.barbora.lt/darzoves-ir-vaisiai/darzoves-ir-grybai')
     # rimi = RimiScraper(driver, 'https://www.barbora.lt/bakaleja/kruopos')
     barbora.collect_data()
     # rimi.collect_data()
